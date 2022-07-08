@@ -3,7 +3,7 @@
 Verify ability of transfomer to handle CNN responses instead of word embeddings.\
 
 ## Initial setup  
-a) muliple cnn-classifiers traned differently,\
+a) muliple cnn-classifiers trained differently,\
 b) dataset with images X\
 
 ## Transformer to be trained
