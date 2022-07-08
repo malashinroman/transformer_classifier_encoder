@@ -4,12 +4,14 @@ Verify ability of transfomer to handle CNN responses instead of word embeddings.
 
 ## Initial setup  
 a) muliple cnn-classifiers traned differently,\
-b) dataset with images\
+b) dataset with images X\
 
 ## Transformer to be trained
-sequence: image__i -> [cnn_resp1, cnn_resp2, cnn_resp3, ...]\
+sequence: image_i -> [cnn1(x), cnn2(x), ...] 
 
-masked_sequence = [cnn_resp1, ...,<MASK>, cnn_respk, ...]\
+
+
+masked_sequence = [y1, ...,<MASK>, yk, ...]\
 restored_sequence = Transformer(masked_sequence)\
 
 ## Objective
