@@ -1,4 +1,5 @@
 .vimspector.json
+.vimspector.json.backup
 .vim/coc-settings.json
 Session.vim
 data/
@@ -12,7 +13,6 @@ __pycache__/
 
 # C extensions
 *.so
-
 
 #Pycharm
 .idea
