@@ -7,9 +7,11 @@ from pytorch_lightning.loggers import WandbLogger
 import models
 from losses import AutoencoderLoss
 from prepare_data_loader import prepare_data_loader
+from script_manager.func.add_needed_args import smart_parse_args
 from utils import zeroout_experts
 
 wandb_logger = WandbLogger(project="pytorch_lightning_test")
+# poher
 
 
 class LitAutoEncoder(pl.LightningModule):
@@ -62,7 +64,10 @@ parser.add_argument("--skip_training", default=1, type=int)
 parser.add_argument("--num_workers", default=0, type=int)
 parser.add_argument("--load_checkpoint", default="best_net500.pkl", type=str)
 parser.add_argument("--model", default="CLEBERT", type=str)
-args = parser.parse_args()
+args = smart_parse_args(parser)
+# args = parser.parse_args()
+
+
 #
 # model
 model = LitAutoEncoder(args)
