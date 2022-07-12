@@ -1,5 +1,7 @@
-import torch
 import random
+
+import torch
+
 
 def zeroout_experts(tensor_, prob):
     if prob == 0.0:
@@ -19,5 +21,3 @@ def zeroout_experts(tensor_, prob):
             tensor[i][k] = torch.zeros_like(tensor[i][k])
 
     return tensor, torch.stack(all_experts_to_destroy, dim=0)
-
-

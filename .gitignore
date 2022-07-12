@@ -1,5 +1,12 @@
+.vimspector.json
+.vim/coc-settings.json
+Session.vim
+data/
+scripts/
+session
 # Byte-compiled / optimized / DLL files
 __pycache__/
+*__pycache__*
 *.py[cod]
 *$py.class
 
