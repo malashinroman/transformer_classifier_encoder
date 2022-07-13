@@ -11,7 +11,6 @@ from script_manager.func.add_needed_args import smart_parse_args
 from utils import zeroout_experts
 
 wandb_logger = WandbLogger(project="pytorch_lightning_test")
-# poher
 
 
 class LitAutoEncoder(pl.LightningModule):
@@ -49,12 +48,6 @@ class LitAutoEncoder(pl.LightningModule):
 
 # data
 
-# train_dataloader, eval_dataloader = prepare_data_loader(config)
-# ataset = MNIST('', train=True, download=True, transform=transforms.ToTensor())
-# mnist_train, mnist_val = random_split(dataset, [55000, 5000])
-#
-# train_loader = DataLoader(mnist_train, batch_size=32)
-# val_loader = DataLoader(mnist_val, batch_size=32)
 parser = argparse.ArgumentParser()
 parser.add_argument("--epochs", default=500, type=int)
 parser.add_argument("--device", default="cuda:0", type=str)
@@ -65,14 +58,12 @@ parser.add_argument("--num_workers", default=0, type=int)
 parser.add_argument("--load_checkpoint", default="best_net500.pkl", type=str)
 parser.add_argument("--model", default="CLEBERT", type=str)
 args = smart_parse_args(parser)
-# args = parser.parse_args()
 
-
-#
 # model
 model = LitAutoEncoder(args)
 
 train_dataloader, eval_dataloader = prepare_data_loader(args)
+
 # training
 trainer = pl.Trainer(
     gpus=1, num_nodes=1, precision=16, limit_train_batches=0.5, logger=wandb_logger
