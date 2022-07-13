@@ -5,15 +5,21 @@ sys.path.append(
 )
 
 import os
+from pathlib import Path
 
 import numpy as np
 import torch.utils.data as data
 import torchvision
 import torchvision.transforms as transforms
-from datasets_cifar import list_files_in_folder
 from torch.utils.data import DataLoader
 
 from local_config import WEAK_CLASSIFIERS
+
+
+def list_files_in_folder(folder, pattern="*test_responses.npy"):
+    all_nets = list(Path(folder).rglob(pattern))
+    all_nets = [str(n) for n in all_nets]
+    return sorted(all_nets)
 
 
 def get_cifar_env_response_files2(
