@@ -1,3 +1,5 @@
-from models.clebert import CleBert
+from models.clebert import FillMask
+from models.clebert2 import TokenClassifier
 
-CLEBERT = CleBert
+FILLMASK = FillMask
+TOKEN_CLASSIFIER = TokenClassifier

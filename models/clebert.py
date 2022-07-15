@@ -3,11 +3,11 @@ import torch.nn as nn
 from transformers import BertModel, BertTokenizer
 
 
-class CleBert(nn.Module):
+class FillMask(nn.Module):
     def __init__(self, config):
         self.config = config
         self.device = config.device
-        super(CleBert, self).__init__()
+        super(FillMask, self).__init__()
         self.bert = BertModel.from_pretrained("bert-base-uncased")
 
         words_indexes = torch.Tensor([list(range(10))]).long().to(self.device)

@@ -6,22 +6,22 @@ import argparse
 import json
 import random
 
+import numpy as np
+
 # sys.path.append('/media/Data1/projects/new/least_action/git/least_action/train_classifiers/cifar')
 import torch
 import tqdm
-import wandb
 from datasets import load_metric
-from losses import AutoencoderLoss
 from torch.optim import Adam, AdamW
 from transformer_playground.transformer_encoder.prepare_data_loader import (
     prepare_data_loader,
 )
-from transformers import BertModel, BertTokenizer, get_scheduler
-import numpy as np
 from transformer_playground.transformer_encoder.utils import zeroout_experts
+from transformers import BertModel, BertTokenizer, get_scheduler
 
 import models
-
+import wandb
+from losses import AutoencoderLoss
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--epochs", default=500, type=int)

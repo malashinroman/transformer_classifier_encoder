@@ -1,10 +1,5 @@
-import sys
-
-sys.path.append(
-    "/media/Data1/projects/new/least_action/git/least_action/train_classifiers/cifar"
-)
-
 import os
+import sys
 from pathlib import Path
 
 import numpy as np

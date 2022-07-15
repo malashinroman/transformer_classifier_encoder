@@ -10,7 +10,7 @@ from prepare_data_loader import prepare_data_loader
 from script_manager.func.add_needed_args import smart_parse_args
 from utils import zeroout_experts
 
-wandb_logger = WandbLogger(project="pytorch_lightning_test")
+# __import__("pudb").set_trace()
 
 
 class LitAutoEncoder(pl.LightningModule):
@@ -46,8 +46,6 @@ class LitAutoEncoder(pl.LightningModule):
         print(batch_idx)
 
 
-# data
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--epochs", default=500, type=int)
 parser.add_argument("--device", default="cuda:0", type=str)
@@ -59,6 +57,10 @@ parser.add_argument("--load_checkpoint", default="best_net500.pkl", type=str)
 parser.add_argument("--model", default="CLEBERT", type=str)
 args = smart_parse_args(parser)
 
+if args.wandb_project_name is not None:
+    wandb_logger = WandbLogger(project=args.wandb_project_name)
+else:
+    wandb_logger = True
 # model
 model = LitAutoEncoder(args)
 

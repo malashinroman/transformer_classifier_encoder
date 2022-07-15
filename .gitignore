@@ -1,3 +1,5 @@
+pyrightconfig.json
+lightning_logs/
 .vimspector.json
 .vimspector.json.backup
 .vim/coc-settings.json
