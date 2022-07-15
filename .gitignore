@@ -5,7 +5,6 @@ lightning_logs/
 .vim/coc-settings.json
 Session.vim
 data/
-scripts/
 session
 # Byte-compiled / optimized / DLL files
 __pycache__/
