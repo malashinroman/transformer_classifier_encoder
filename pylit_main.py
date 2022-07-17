@@ -5,7 +5,7 @@ import torch
 from pytorch_lightning.loggers import WandbLogger
 
 import models
-from losses import AutoencoderLoss
+import losses
 from prepare_data_loader import prepare_data_loader
 from script_manager.func.add_needed_args import smart_parse_args
 from utils import zeroout_experts
@@ -20,7 +20,9 @@ class LitAutoEncoder(pl.LightningModule):
         clebert_class = models.__dict__[args.model]
         self.clebert = clebert_class(args)
         self.clebert.to(args.device)
-        self.ae_loss_func = AutoencoderLoss(args)
+        # self.ae_loss_func = AutoencoderLoss(args)
+        loss_function_type = losses.__dict__[args.loss]
+        self.loss_funtion = loss_function_type(args)
 
     def forward(self, x):
         output = self.clebert(x)
@@ -47,14 +49,16 @@ class LitAutoEncoder(pl.LightningModule):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--epochs", default=500, type=int)
-parser.add_argument("--device", default="cuda:0", type=str)
 parser.add_argument("--batch_size", default=64, type=int)
-parser.add_argument("--skip_validation", default=0, type=int)
-parser.add_argument("--skip_training", default=1, type=int)
-parser.add_argument("--num_workers", default=0, type=int)
+parser.add_argument("--device", default="cuda:0", type=str)
+parser.add_argument("--epochs", default=500, type=int)
 parser.add_argument("--load_checkpoint", default="best_net500.pkl", type=str)
+parser.add_argument("--losses", default="AE_MSE_LOSS", type=str)
 parser.add_argument("--model", default="CLEBERT", type=str)
+parser.add_argument("--num_workers", default=0, type=int)
+parser.add_argument("--skip_training", default=1, type=int)
+parser.add_argument("--skip_validation", default=0, type=int)
+parser.add_argument("--loss", default="AE_MSE_LOSS", type=str)
 args = smart_parse_args(parser)
 
 if args.wandb_project_name is not None:
