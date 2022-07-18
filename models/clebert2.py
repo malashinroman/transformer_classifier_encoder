@@ -19,9 +19,9 @@ class TokenClassifier(nn.Module):
         self.vector2response = nn.Linear(768, 100)
 
         # create positional embedding from 1 to 10
-        self.word_positional_embeddings = self.model.bert.embeddings.position_embeddings(
-            words_indexes
-        ).detach()
+        self.word_positional_embeddings = (
+            self.model.bert.embeddings.position_embeddings(words_indexes).detach()
+        )
 
         # types of words (similar)
         word_type = torch.ones(0).long().to(self.device)
