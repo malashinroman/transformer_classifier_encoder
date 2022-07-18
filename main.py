@@ -56,12 +56,11 @@ if config.skip_training:
 else:
     epochs = config.epochs
 
-"""there ar
-    - config.num_workers"""
-
+""" Main training loop """
 for epoch in range(epochs):
     clebert.eval()
     eval_total_loss = 0
+    """ Evaluate on the validation set """
     if not config.skip_validation:
         with torch.no_grad():
             with tqdm.tqdm(total=len(eval_dataloader)) as pbar:
@@ -86,6 +85,7 @@ for epoch in range(epochs):
                     json.dump({"epoch": epoch, "eval_total_loss": eval_total_loss}, fp)
                 best_total_loss = eval_total_loss
 
+    """ Train on the training set """
     if not config.skip_training:
         with tqdm.tqdm(total=len(train_dataloader)) as pbar:
             clebert.train()
