@@ -13,7 +13,7 @@ from script_manager.func.script_boilerplate import do_everything
 main_script = os.path.join("pylit_main.py")
 
 # weights and biases project name
-wandb_project_name = "test_some_functionality"
+wandb_project_name = "clebert"
 
 # keys
 appendix_keys = ["tag"]
