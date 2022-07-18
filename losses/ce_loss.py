@@ -12,4 +12,4 @@ class CrossEntropy(nn.Module):
         super(CrossEntropy, self).__init__()
         self.criterion = nn.CrossEntropyLoss()
     def forward(self, input, target):
-        return self.criterion(input, target)k
+        return self.criterion(input, target)
