@@ -4,8 +4,8 @@ import pytorch_lightning as pl
 import torch
 from pytorch_lightning.loggers import WandbLogger
 
-import models
 import losses
+import models
 from prepare_data_loader import prepare_data_loader
 from script_manager.func.add_needed_args import smart_parse_args
 from utils import zeroout_experts
@@ -33,7 +33,9 @@ class LitAutoEncoder(pl.LightningModule):
         return optimizer
 
     def training_step(self, train_batch, batch_idx):
-        corrupted, indexes = zeroout_experts(train_batch["cifar_env_response"], 0.6)
+        corrupted, indexes = zeroout_experts(
+            train_batch["cifar_env_response"], self._args.zeroout_prob
+        )
         output = self.clebert(corrupted, indexes)
         loss = self.loss_function(train_batch, output)
         self.log("train_loss", loss)
@@ -41,7 +43,9 @@ class LitAutoEncoder(pl.LightningModule):
         return loss
 
     def validation_step(self, val_batch, batch_idx):
-        corrupted, indexes = zeroout_experts(val_batch["cifar_env_response"], 0.6)
+        corrupted, indexes = zeroout_experts(
+            val_batch["cifar_env_response"], self._args.zeroout_prob
+        )
         output = self.clebert(corrupted, indexes)
         loss = self.loss_function(val_batch, output)
         self.log("val_loss", loss)
@@ -59,6 +63,7 @@ parser.add_argument("--num_workers", default=0, type=int)
 parser.add_argument("--skip_training", default=1, type=int)
 parser.add_argument("--skip_validation", default=0, type=int)
 parser.add_argument("--loss", default="AE_MSE_LOSS", type=str)
+parser.add_argument("--zeroout_prob", default=0.15, type=float)
 args = smart_parse_args(parser)
 
 if args.wandb_project_name is not None:
