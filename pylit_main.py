@@ -20,9 +20,9 @@ class LitAutoEncoder(pl.LightningModule):
         clebert_class = models.__dict__[args.model]
         self.clebert = clebert_class(args)
         self.clebert.to(args.device)
-        # self.ae_loss_func = AutoencoderLoss(args)
+        # self.loss_function = AutoencoderLoss(args)
         loss_function_type = losses.__dict__[args.loss]
-        self.loss_funtion = loss_function_type(args)
+        self.loss_function = loss_function_type(args)
 
     def forward(self, x):
         output = self.clebert(x)
@@ -35,7 +35,7 @@ class LitAutoEncoder(pl.LightningModule):
     def training_step(self, train_batch, batch_idx):
         corrupted, indexes = zeroout_experts(train_batch["cifar_env_response"], 0.6)
         output = self.clebert(corrupted, indexes)
-        loss = self.ae_loss_func(train_batch, output)
+        loss = self.loss_function(train_batch, output)
         self.log("train_loss", loss)
         print(batch_idx)
         return loss
@@ -43,7 +43,7 @@ class LitAutoEncoder(pl.LightningModule):
     def validation_step(self, val_batch, batch_idx):
         corrupted, indexes = zeroout_experts(val_batch["cifar_env_response"], 0.6)
         output = self.clebert(corrupted, indexes)
-        loss = self.ae_loss_func(val_batch, output)
+        loss = self.loss_function(val_batch, output)
         self.log("val_loss", loss)
         print(batch_idx)
 
