@@ -29,7 +29,7 @@ class LitAutoEncoder(pl.LightningModule):
         return output
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self._args.lr)
         return optimizer
 
     def training_step(self, train_batch, batch_idx):
@@ -64,6 +64,8 @@ parser.add_argument("--skip_training", default=1, type=int)
 parser.add_argument("--skip_validation", default=0, type=int)
 parser.add_argument("--loss", default="AE_MSE_LOSS", type=str)
 parser.add_argument("--zeroout_prob", default=0.15, type=float)
+parser.add_argument("--lr", default=1e-3, type=float)
+
 args = smart_parse_args(parser)
 
 if args.wandb_project_name is not None:
@@ -77,6 +79,11 @@ train_dataloader, eval_dataloader = prepare_data_loader(args)
 
 # training
 trainer = pl.Trainer(
-    gpus=1, num_nodes=1, precision=16, limit_train_batches=0.5, logger=wandb_logger
+    gpus=1,
+    num_nodes=1,
+    precision=16,
+    limit_train_batches=0.5,
+    logger=wandb_logger,
+    max_epochs=args.epochs,
 )
 trainer.fit(model, train_dataloader, eval_dataloader)

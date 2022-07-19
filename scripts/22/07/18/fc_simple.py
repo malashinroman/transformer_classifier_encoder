@@ -20,20 +20,36 @@ appendix_keys = ["tag"]
 extra_folder_keys = []
 
 # default parameteres
-test_parameters = {"num_workers": 0}
+test_parameters = {
+    "num_workers": 0,
+    "epochs": 1,
+}
 default_parameters = {
     "zeroout_prob": 0.15,
     "batch_size": 64,
     "device": "cuda:0",
-    "epochs": 100,
-    "num_workers": 2,
+    "epochs": 200,
+    "num_workers": 8,
 }
 
 # configs to be exectuted
 configs = []
 
-
-configs.append([{"tag": "SIMPLE_FC", "model": "SIMPLE_FC"}, None])
+for lr in [1e-3, 1e-4, 1e-5]:
+    for batch_size in [65, 128, 256]:
+        configs.append(
+            [
+                {
+                    "tag": "lr_{}_batch_{}".format(lr, batch_size),
+                    "lr": lr,
+                    "batch_size": batch_size,
+                    "model": "SIMPLE_FC",
+                    "loss": "AE_MSE_LOSS",
+                },
+                None,
+            ]
+        )
+        # configs.append([{"tag": "SIMPLE_FC", "model": "SIMPLE_FC", "lr": 1e3}, None])
 
 
 # RUN everything
