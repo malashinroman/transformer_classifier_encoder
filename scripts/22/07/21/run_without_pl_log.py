@@ -38,25 +38,22 @@ configs = []
 
 for lr in [1e-3, 1e-4, 1e-5]:
     for batch_size in [128, 256]:
-        for batch_size in [128, 256]:
-            for model in ["SIMPLE_FC", "FILLMASK"]:
-                configs.append(
-                    [
-                        {
-                            "tag": "lr_{}_batch_{}_no_pl_{}".format(
-                                lr, batch_size, model
-                            ),
-                            "lr": lr,
-                            "batch_size": batch_size,
-                            "model": "SIMPLE_FC",
-                            "loss": "AE_MSE_LOSS",
-                        },
-                        None,
-                    ]
-                )
-                # configs.append([{"tag": "SIMPLE_FC", "model": "SIMPLE_FC", "lr": 1e3}, None])
+        for model in ["SIMPLE_FC", "FILLMASK"]:
+            configs.append(
+                [
+                    {
+                        "tag": "lr_{}_batch_{}_no_pl_{}".format(lr, batch_size, model),
+                        "lr": lr,
+                        "batch_size": batch_size,
+                        "model": "SIMPLE_FC",
+                        "loss": "AE_MSE_LOSS",
+                    },
+                    None,
+                ]
+            )
+            # configs.append([{"tag": "SIMPLE_FC", "model": "SIMPLE_FC", "lr": 1e3}, None])
 
-
+print(f"total_number_of_scripts = {len(configs)}")
 # RUN everything
 # !normally you don't have to change anything here
 if __name__ == "__main__":
