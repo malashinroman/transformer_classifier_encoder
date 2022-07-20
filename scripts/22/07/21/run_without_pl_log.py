@@ -37,20 +37,24 @@ default_parameters = {
 configs = []
 
 for lr in [1e-3, 1e-4, 1e-5]:
-    for batch_size in [65, 128, 256]:
-        configs.append(
-            [
-                {
-                    "tag": "lr_{}_batch_{}_no_pl".format(lr, batch_size),
-                    "lr": lr,
-                    "batch_size": batch_size,
-                    "model": "SIMPLE_FC",
-                    "loss": "AE_MSE_LOSS",
-                },
-                None,
-            ]
-        )
-        # configs.append([{"tag": "SIMPLE_FC", "model": "SIMPLE_FC", "lr": 1e3}, None])
+    for batch_size in [128, 256]:
+        for batch_size in [128, 256]:
+            for model in ["SIMPLE_FC", "FILLMASK"]:
+                configs.append(
+                    [
+                        {
+                            "tag": "lr_{}_batch_{}_no_pl_{}".format(
+                                lr, batch_size, model
+                            ),
+                            "lr": lr,
+                            "batch_size": batch_size,
+                            "model": "SIMPLE_FC",
+                            "loss": "AE_MSE_LOSS",
+                        },
+                        None,
+                    ]
+                )
+                # configs.append([{"tag": "SIMPLE_FC", "model": "SIMPLE_FC", "lr": 1e3}, None])
 
 
 # RUN everything
