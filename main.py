@@ -12,6 +12,7 @@ import losses
 import models
 from prepare_data_loader import prepare_data_loader
 from script_manager.func.add_needed_args import smart_parse_args
+from script_manager.func.wandb_logger import write_wandb_scalar
 from utils import zeroout_experts
 
 sys.path.append(".")
@@ -75,10 +76,13 @@ for epoch in range(epochs):
                     )
                     pbar.update(1)
             print(f"eval_loss:{eval_total_loss}")
+            write_wandb_scalar(f"eval_loss", eval_total_loss, epoch)
             if eval_total_loss < best_total_loss and not config.skip_training:
                 torch.save(clebert.state_dict(), "best_net.pkl")
                 with open("best_net.info", "w") as fp:
                     json.dump({"epoch": epoch, "eval_total_loss": eval_total_loss}, fp)
+                best_total_loss = eval_total_loss
+
     if not config.skip_training:
         with tqdm.tqdm(total=len(train_dataloader)) as pbar:
             clebert.train()
@@ -105,3 +109,4 @@ for epoch in range(epochs):
                 pbar.set_description(f"train_total_loss:{train_total_loss:.2f}")
 
             print(f"train_total_loss:{train_total_loss:.3f}")
+            write_wandb_scalar(f"train_total_loss", train_total_loss, epoch)

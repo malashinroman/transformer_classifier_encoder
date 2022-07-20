@@ -84,7 +84,6 @@ class IndexedDataset(data.Dataset):
         # resp = self.all_responses[corrected_index]
         resp = self.all_responses[0]
         out_dict["cifar_env_response"] = resp
-
         return out_dict
 
     def __len__(self):
