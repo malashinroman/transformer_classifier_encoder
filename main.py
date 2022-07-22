@@ -17,7 +17,6 @@ from utils import zeroout_experts
 
 sys.path.append(".")
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch_size", default=64, type=int)
 parser.add_argument("--device", default="cuda:0", type=str)
