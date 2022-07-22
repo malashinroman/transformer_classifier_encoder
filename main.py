@@ -41,6 +41,7 @@ optimizer = Adam(clebert.parameters(), lr=config.lr)
 
 train_dataloader, eval_dataloader = prepare_data_loader(config)
 
+"""loss function"""
 loss_function_class = losses.__dict__[config.loss]
 loss_function = loss_function_class(config)
 
@@ -55,6 +56,8 @@ if config.skip_training:
 else:
     epochs = config.epochs
 
+"""there ar
+    - config.num_workers"""
 
 for epoch in range(epochs):
     clebert.eval()
@@ -76,7 +79,7 @@ for epoch in range(epochs):
                     )
                     pbar.update(1)
             print(f"eval_loss:{eval_total_loss}")
-            write_wandb_scalar(f"eval_loss", eval_total_loss, epoch)
+            write_wandb_scalar("eval_loss", eval_total_loss, epoch)
             if eval_total_loss < best_total_loss and not config.skip_training:
                 torch.save(clebert.state_dict(), "best_net.pkl")
                 with open("best_net.info", "w") as fp:
@@ -109,4 +112,4 @@ for epoch in range(epochs):
                 pbar.set_description(f"train_total_loss:{train_total_loss:.2f}")
 
             print(f"train_total_loss:{train_total_loss:.3f}")
-            write_wandb_scalar(f"train_total_loss", train_total_loss, epoch)
+            write_wandb_scalar("train_total_loss", train_total_loss, epoch)
