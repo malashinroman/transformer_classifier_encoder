@@ -16,7 +16,7 @@ def zeroout_experts(tensor_: torch.Tensor, prob: float, fixed_num: int = 0):
         if fixed_num <= 0:
             expert_to_destroy = [i for i in indexes if random.random() < prob]
         else:
-            __import__("pudb").set_trace()
+            # __import__("pudb").set_trace()
             expert_to_destroy = random.sample(range(0, expert_num), fixed_num)
 
         ttt = [1 if e in expert_to_destroy else 0 for e in range(expert_num)]
