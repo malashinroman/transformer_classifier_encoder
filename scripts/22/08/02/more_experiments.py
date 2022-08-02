@@ -36,7 +36,7 @@ default_parameters = {
 
 # configs to be exectuted
 configs = []
-for fixed_zero_exp_num in [2, 3, 4, 5, 6, 7, 8, 9]:
+for fixed_zero_exp_num in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
     configs.append(
         [
             {

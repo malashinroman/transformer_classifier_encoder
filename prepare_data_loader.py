@@ -81,8 +81,8 @@ class IndexedDataset(data.Dataset):
         out_dict = {"image": image, "label": label, "index": corrected_index}
 
         # if self._args.semi_environment == "cifar_env_responder":
-        # resp = self.all_responses[corrected_index]
-        resp = self.all_responses[0]
+        resp = self.all_responses[corrected_index]
+        # resp = self.all_responses[0]
         out_dict["cifar_env_response"] = resp
         return out_dict
 

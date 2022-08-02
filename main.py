@@ -56,31 +56,69 @@ if config.skip_training:
 else:
     epochs = config.epochs
 
+"""class that measures accuracy during training"""
+
+
+class AccuracyMeter:
+    def __init__(self):
+        self.correct = 0
+        self.total = 0
+
+    def update(self, output, ground_truth):
+        target = ground_truth.argmax(dim=2)
+        pred = output.argmax(dim=2)
+        correct = pred.eq(target).sum().item()
+        self.correct += correct
+
+        # we have prediction for each expert
+        self.total += target.shape[0] * target.shape[1]
+
+    def get_accuracy(self):
+        return self.correct / self.total * 100.0
+
+
 """ Main training loop """
 for epoch in range(epochs):
     clebert.eval()
     eval_total_loss = 0
+    val_accuracy_meter = AccuracyMeter()
+    train_accuracy_meter = AccuracyMeter()
     """ Evaluate on the validation set """
     if not config.skip_validation:
         with torch.no_grad():
             with tqdm.tqdm(total=len(eval_dataloader)) as pbar:
                 for batch in eval_dataloader:
+                    __import__("pudb").set_trace()
                     """prepare data"""
-                    corrupted, indexes = zeroout_experts(
+                    corrupted, masked_indexes, indexes = zeroout_experts(
                         batch["cifar_env_response"],
                         config.zeroout_prob,
                         fixed_num=config.fixed_zero_exp_num,
                     )
                     corrupted = corrupted.to(config.device)
-                    output = clebert(corrupted, indexes)
+                    output = clebert(corrupted, masked_indexes)
+                    gt = batch["cifar_env_response"].to(config.device)
+                    masked_indexes = masked_indexes.to(config.device)
+                    restored_embeddings = torch.masked_select(
+                        output["restored_resp"], masked_indexes.bool().unsqueeze(-1)
+                    ).view(gt.shape[0], len(indexes[0]), -1)
+                    gt_restored = torch.masked_select(
+                        gt, masked_indexes.bool().unsqueeze(-1)
+                    ).view(gt.shape[0], len(indexes[0]), -1)
 
+                    val_accuracy_meter.update(restored_embeddings, gt_restored)
+                    val_accuracy = val_accuracy_meter.get_accuracy()
                     # compute loss
                     loss = loss_function(batch, output)
                     eval_total_loss += loss.item()
                     pbar.set_description(
                         f"epoch {epoch} / {config.epochs}:  total_loss:{eval_total_loss:.2f}"
+                        f"  val_accuracy: {val_accuracy:.2f}"
                     )
                     pbar.update(1)
+
+                val_accuracy = val_accuracy_meter.get_accuracy()
+                write_wandb_scalar("val_accuracy", val_accuracy)
 
             print(f"eval_loss:{eval_total_loss}")
             write_wandb_scalar("eval_loss", eval_total_loss, epoch)
@@ -98,20 +136,39 @@ for epoch in range(epochs):
             train_total_loss = 0
             for ind, batch in enumerate(train_dataloader):
                 optimizer.zero_grad()
-                corrupted, indexes = zeroout_experts(
+                corrupted, masked_indexes, indexes = zeroout_experts(
                     batch["cifar_env_response"],
                     config.zeroout_prob,
                     fixed_num=config.fixed_zero_exp_num,
                 )
 
                 corrupted = corrupted.to(config.device)
-                output = clebert(corrupted, indexes)
+                output = clebert(corrupted, masked_indexes)
                 loss = loss_function(batch, output)
                 loss.backward()
                 optimizer.step()
                 train_total_loss += loss.item()
+
+                gt = batch["cifar_env_response"].to(config.device)
+                masked_indexes = masked_indexes.to(config.device)
+                restored_embeddings = torch.masked_select(
+                    output["restored_resp"], masked_indexes.bool().unsqueeze(-1)
+                ).view(gt.shape[0], len(indexes[0]), -1)
+                gt_restored = torch.masked_select(
+                    gt, masked_indexes.bool().unsqueeze(-1)
+                ).view(gt.shape[0], len(indexes[0]), -1)
+
+                train_accuracy_meter.update(restored_embeddings, gt_restored)
+                train_accuracy = train_accuracy_meter.get_accuracy()
+
                 pbar.update(1)
-                pbar.set_description(f"train_total_loss:{train_total_loss:.2f}")
+                pbar.set_description(
+                    f"train_total_loss:{train_total_loss:.2f}"
+                    f"  train_accuracy: {train_accuracy:.2f}"
+                )
+
+            train_accuracy = train_accuracy_meter.get_accuracy()
+            write_wandb_scalar("train_accuracy", train_accuracy)
 
             print(f"train_total_loss:{train_total_loss:.3f}")
             write_wandb_scalar("train_total_loss", train_total_loss, epoch)
