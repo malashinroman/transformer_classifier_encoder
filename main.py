@@ -98,6 +98,8 @@ for epoch in range(epochs):
                     )
                     corrupted = corrupted.to(config.device)
                     output = clebert(corrupted, masked_indexes)
+
+                    # extract masked outputs for accuracy calculation
                     gt = batch["cifar_env_response"].to(config.device)
                     masked_indexes = masked_indexes.to(config.device)
                     restored_embeddings = torch.masked_select(
