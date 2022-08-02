@@ -50,6 +50,23 @@ for fixed_zero_exp_num in [1]:
         ]
     )
 
+for optimizer in ["AdamW"]:
+    for fixed_zero_exp_num in [1]:
+        for lr in [1e-3, 1e-4, 1e-5]:
+            configs.append(
+                [
+                    {
+                        "fixed_zero_exp_num": fixed_zero_exp_num,
+                        "model": "INDEXFILLER",
+                        "loss": "CE_LOSS",
+                        "optimizer": optimizer,
+                        "lr": lr,
+                        "tag": f"INDEXFILLER_{optimizer}_{lr}",
+                    },
+                    None,
+                ]
+            )
+
 print(f"total_number_of_scripts = {len(configs)}")
 
 if __name__ == "__main__":
