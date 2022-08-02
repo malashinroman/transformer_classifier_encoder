@@ -5,6 +5,7 @@ import sys
 
 import numpy as np
 import torch
+import torch.optim as optim
 import tqdm
 from torch.optim import Adam
 
@@ -21,24 +22,24 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--batch_size", default=64, type=int)
 parser.add_argument("--device", default="cuda:0", type=str)
 parser.add_argument("--epochs", default=500, type=int)
+parser.add_argument("--fixed_zero_exp_num", default=0, type=int)
 parser.add_argument("--load_checkpoint", default=None, type=str)
-parser.add_argument("--losses", default="AE_MSE_LOSS", type=str)
+parser.add_argument("--loss", default="AE_MSE_LOSS", type=str)
+parser.add_argument("--lr", default=1e-3, type=float)
 parser.add_argument("--model", default="Clebert", type=str)
 parser.add_argument("--num_workers", default=0, type=int)
+parser.add_argument("--optimizer", default="Adam", type=str)
 parser.add_argument("--skip_training", default=0, type=int)
 parser.add_argument("--skip_validation", default=0, type=int)
-parser.add_argument("--loss", default="AE_MSE_LOSS", type=str)
 parser.add_argument("--zeroout_prob", default=0.15, type=float)
-parser.add_argument("--fixed_zero_exp_num", default=0, type=int)
-parser.add_argument("--lr", default=1e-3, type=float)
 
 config = smart_parse_args(parser)
 
 clebert_class = models.__dict__[config.model]
 clebert = clebert_class(config)
 clebert.to(config.device)
-optimizer = Adam(clebert.parameters(), lr=config.lr)
-
+# optimizer = Adam(clebert.parameters(), lr=config.lr)
+optimizer = optim.__dict__[config.optimizer](clebert.parameters(), lr=config.lr)
 train_dataloader, eval_dataloader = prepare_data_loader(config)
 
 """loss function"""
