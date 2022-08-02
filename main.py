@@ -12,7 +12,7 @@ import losses
 import models
 from prepare_data_loader import prepare_data_loader
 from script_manager.func.add_needed_args import smart_parse_args
-from script_manager.func.wandb_logger import write_wandb_scalar
+from script_manager.func.wandb_logger import write_wandb_dict
 from utils import zeroout_experts
 
 sys.path.append(".")
@@ -116,12 +116,8 @@ for epoch in range(epochs):
                         f"  val_accuracy: {val_accuracy:.2f}"
                     )
                     pbar.update(1)
-
                 val_accuracy = val_accuracy_meter.get_accuracy()
-                write_wandb_scalar("val_accuracy", val_accuracy)
-
             print(f"eval_loss:{eval_total_loss}")
-            write_wandb_scalar("eval_loss", eval_total_loss, epoch)
             if eval_total_loss < best_total_loss and not config.skip_training:
                 best_path = os.path.join(config.output_dir, "best_net.pkl")
                 torch.save(clebert.state_dict(), best_path)
@@ -168,7 +164,13 @@ for epoch in range(epochs):
                 )
 
             train_accuracy = train_accuracy_meter.get_accuracy()
-            write_wandb_scalar("train_accuracy", train_accuracy)
-
-            print(f"train_total_loss:{train_total_loss:.3f}")
-            write_wandb_scalar("train_total_loss", train_total_loss, epoch)
+            write_wandb_dict(
+                {
+                    "train_accuracy": train_accuracy_meter.get_accuracy(),
+                    "val_accuracy": val_accuracy_meter.get_accuracy(),
+                    "train_total_loss": train_total_loss,
+                    "val_total_loss": eval_total_loss,
+                    "custom_step": epoch,
+                },
+                commit=True,
+            )
