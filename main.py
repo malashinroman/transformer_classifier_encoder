@@ -88,7 +88,7 @@ for epoch in range(epochs):
         with torch.no_grad():
             with tqdm.tqdm(total=len(eval_dataloader)) as pbar:
                 for batch in eval_dataloader:
-                    __import__("pudb").set_trace()
+                    # __import__("pudb").set_trace()
                     """prepare data"""
                     corrupted, masked_indexes, indexes = zeroout_experts(
                         batch["cifar_env_response"],
