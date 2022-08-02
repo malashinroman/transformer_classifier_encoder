@@ -1,3 +1,4 @@
+# type: ignore
 import torch
 import torch.nn as nn
 from transformers import BertModel, BertTokenizer
@@ -17,7 +18,7 @@ class FillMask(nn.Module):
         ).detach()
         self.response2embedding = nn.Linear(100, 768).to(self.device)
         self.vector2response = nn.Linear(768, 100)
-        word_type = torch.Tensor([[1 for i in range(10)]]).long().to(self.device)
+        word_type = torch.Tensor([[1 for _ in range(10)]]).long().to(self.device)
         self.type_embedding = self.bert.embeddings.token_type_embeddings(
             word_type
         ).detach()

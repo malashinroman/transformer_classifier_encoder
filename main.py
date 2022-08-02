@@ -3,7 +3,6 @@ import json
 import os
 import sys
 
-# h
 import numpy as np
 import torch
 import tqdm
@@ -30,6 +29,7 @@ parser.add_argument("--skip_training", default=0, type=int)
 parser.add_argument("--skip_validation", default=0, type=int)
 parser.add_argument("--loss", default="AE_MSE_LOSS", type=str)
 parser.add_argument("--zeroout_prob", default=0.15, type=float)
+parser.add_argument("--fixed_zero_exp_num", default=0, type=int)
 parser.add_argument("--lr", default=1e-3, type=float)
 
 config = smart_parse_args(parser)
@@ -65,48 +65,50 @@ for epoch in range(epochs):
         with torch.no_grad():
             with tqdm.tqdm(total=len(eval_dataloader)) as pbar:
                 for batch in eval_dataloader:
+                    """prepare data"""
                     corrupted, indexes = zeroout_experts(
-                        batch["cifar_env_response"], config.zeroout_prob
+                        batch["cifar_env_response"],
+                        config.zeroout_prob,
+                        fixed_num=config.fixed_zero_exp_num,
                     )
                     corrupted = corrupted.to(config.device)
                     output = clebert(corrupted, indexes)
 
+                    # compute loss
                     loss = loss_function(batch, output)
                     eval_total_loss += loss.item()
                     pbar.set_description(
                         f"epoch {epoch} / {config.epochs}:  total_loss:{eval_total_loss:.2f}"
                     )
                     pbar.update(1)
+
             print(f"eval_loss:{eval_total_loss}")
             write_wandb_scalar("eval_loss", eval_total_loss, epoch)
             if eval_total_loss < best_total_loss and not config.skip_training:
-                torch.save(clebert.state_dict(), "best_net.pkl")
+                best_path = os.path.join(config.output_dir, "best_net.pkl")
+                torch.save(clebert.state_dict(), best_path)
                 with open("best_net.info", "w") as fp:
                     json.dump({"epoch": epoch, "eval_total_loss": eval_total_loss}, fp)
                 best_total_loss = eval_total_loss
 
     """ Train on the training set """
     if not config.skip_training:
+        clebert.train()
         with tqdm.tqdm(total=len(train_dataloader)) as pbar:
-            clebert.train()
             train_total_loss = 0
             for ind, batch in enumerate(train_dataloader):
-                # outputs = model(**batch)
-                # optimizer.zero_grad()
                 optimizer.zero_grad()
                 corrupted, indexes = zeroout_experts(
-                    batch["cifar_env_response"], config.zeroout_prob
+                    batch["cifar_env_response"],
+                    config.zeroout_prob,
+                    fixed_num=config.fixed_zero_exp_num,
                 )
-                # corrupted = torch.zeros_like(corrupted)
-                # corrupted = torch.ones([config.batch_size, 10, 768]).cuda() * 100
-                # batch["cifar_env_response"] = corrupted
 
                 corrupted = corrupted.to(config.device)
                 output = clebert(corrupted, indexes)
                 loss = loss_function(batch, output)
                 loss.backward()
                 optimizer.step()
-                # lr_scheduler.step()
                 train_total_loss += loss.item()
                 pbar.update(1)
                 pbar.set_description(f"train_total_loss:{train_total_loss:.2f}")
