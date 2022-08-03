@@ -40,6 +40,7 @@ parser.add_argument("--skip_validation", default=0, type=int)
 parser.add_argument("--use_static_files", default=1, type=int)
 parser.add_argument("--weak_classifier_folder", default=None, type=str)
 parser.add_argument("--zeroout_prob", default=0.15, type=float)
+parser.add_argument("--dataset", default="cifar100", type=str)
 
 parser.add_argument(
     "--classifiers_indexes",

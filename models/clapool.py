@@ -6,6 +6,9 @@ from prepare_data_loader import list_files_in_folder, read_json
 
 
 def copy_weight_part(own_state, name, param):
+    """
+    Copy a part of the weight matrix from one module to another.
+    """
     if own_state[name].shape == param.shape:
         own_state[name].resize_as_(param)
         own_state[name].copy_(param)
@@ -16,6 +19,9 @@ def copy_weight_part(own_state, name, param):
 
 
 def load_state_dict_into_module(state_dict, module, strict=False, ignore_prefix=[]):
+    """
+    Load the parameters into a module.
+    """
     own_state = module.state_dict()
     not_loaded = set(state_dict.keys()) - set(own_state.keys())
     print(
