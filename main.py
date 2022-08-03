@@ -17,6 +17,7 @@ from script_manager.func.wandb_logger import write_wandb_dict
 from utils import zeroout_experts
 
 sys.path.append(".")
+from local_config import WEAK_CLASSIFIERS
 
 
 def str2intlist(v):
@@ -38,15 +39,20 @@ parser.add_argument("--optimizer", default="Adam", type=str)
 parser.add_argument("--skip_training", default=0, type=int)
 parser.add_argument("--skip_validation", default=0, type=int)
 parser.add_argument("--use_static_files", default=1, type=int)
-parser.add_argument("--weak_classifier_folder", default=None, type=str)
 parser.add_argument("--zeroout_prob", default=0.15, type=float)
 parser.add_argument("--dataset", default="cifar100", type=str)
-
+parser.add_argument(
+    "--weak_classifier_folder",
+    type=str,
+    default=os.path.join(
+        WEAK_CLASSIFIERS,
+        "cifar100_single_resent/2020-12-02T15-21-48_700332_weight_decay_0_0001_linear_search_False/tb",
+    ),
+)
 parser.add_argument(
     "--classifiers_indexes",
     type=str2intlist,
-    default=None,
-    help="indexes of the classifiers",
+    default="[0,1,2,3,4,5,6,7,8,9]",
 )
 config = smart_parse_args(parser)
 
