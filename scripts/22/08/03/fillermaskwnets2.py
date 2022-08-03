@@ -37,7 +37,7 @@ configs = []
 
 for optimizer in ["AdamW"]:
     for fixed_zero_exp_num in [1]:
-        for lr in [1e-4]:
+        for lr in [1e-5]:
             configs.append(
                 [
                     {

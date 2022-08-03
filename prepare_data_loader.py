@@ -142,7 +142,6 @@ class IndexedDataset(data.Dataset):
 
 def prepare_data_loader(config):
     """return dataloaders for training"""
-    __import__("pudb").set_trace()
     trans = transforms.Compose(
         [
             transforms.ToTensor(),
