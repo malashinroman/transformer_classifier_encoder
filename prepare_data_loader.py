@@ -107,6 +107,10 @@ def get_cifar_env_response_files2(
 
 
 class IndexedDataset(data.Dataset):
+    """class to add unique index to each image.
+    Adds classifiers_response to the image if provided.
+    """
+
     def __init__(self, args, cifar, index_correction=0):
         self.cifar = cifar
         self._args = args
@@ -114,26 +118,21 @@ class IndexedDataset(data.Dataset):
         self.replicates = 1
         self.index_correction = index_correction
         cifar_100_weak_classifiers_path = args.weak_classifier_folder
-        # cifar_100_weak_classifiers_path = os.path.join(
-        #     WEAK_CLASSIFIERS,
-        #     "cifar100_single_resent/2020-12-02T15-21-48_700332_weight_decay_0_0001_linear_search_False/tb",
-        # )
-        # if self._args.semi_environment == "cifar_env_responder":
-        all_responses = get_cifar_env_response_files2(
-            self._args.classifiers_indexes, False, cifar_100_weak_classifiers_path
-        )
-        self.all_responses = np.stack(all_responses, axis=1)
+        if self._args.use_static_files:
+            all_responses = get_cifar_env_response_files2(
+                self._args.classifiers_indexes, False, cifar_100_weak_classifiers_path
+            )
+            self.all_responses = np.stack(all_responses, axis=1)
 
     def __getitem__(self, index):
         image, label = self.cifar[index]
-        # classifier_responses = None
         corrected_index = index + self.index_correction
         out_dict = {"image": image, "label": label, "index": corrected_index}
 
-        # if self._args.semi_environment == "cifar_env_responder":
-        resp = self.all_responses[corrected_index]
-        # resp = self.all_responses[0]
-        out_dict["cifar_env_response"] = resp
+        if self._args.use_static_files:
+            resp = self.all_responses[corrected_index]
+            # resp = self.all_responses[0]
+            out_dict["cifar_env_response"] = resp
         return out_dict
 
     def __len__(self):

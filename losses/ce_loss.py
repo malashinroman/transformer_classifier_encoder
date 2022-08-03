@@ -14,9 +14,9 @@ class CrossEntropyLoss(nn.Module):
         self.config = config
         self.criterion = nn.CrossEntropyLoss()
 
-    def forward(self, data, net_output):
+    def forward(self, net_output, gt):
 
-        target = data["cifar_env_response"].argmax(dim=2).to(self.config.device)
+        target = gt.argmax(dim=2).to(self.config.device)
         input = net_output["restored_resp"]
         target = target.view(-1)
         input = input.view(-1, input.shape[-1])
