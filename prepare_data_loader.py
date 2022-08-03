@@ -12,7 +12,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 sys.path.append(".")
-from local_config import WEAK_CLASSIFIERS
+from local_config import IMAGENET_PATH, WEAK_CLASSIFIERS
 
 
 def list_files_in_folder(folder, pattern="*test_responses.npy"):
@@ -141,19 +141,30 @@ class IndexedDataset(data.Dataset):
 
 
 def prepare_data_loader(config):
+    """return dataloaders for training"""
+    __import__("pudb").set_trace()
     trans = transforms.Compose(
         [
             transforms.ToTensor(),
             transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010]),
         ]
     )
-
-    dataset_train = torchvision.datasets.CIFAR10(
-        root="./data", train=True, download=True, transform=trans
-    )
-    dataset_test = torchvision.datasets.CIFAR10(
-        root="./data", train=False, download=True, transform=trans
-    )
+    if config.dataset == "cifar100":
+        dataset_train = torchvision.datasets.CIFAR10(
+            root="./data", train=True, download=True, transform=trans
+        )
+        dataset_test = torchvision.datasets.CIFAR10(
+            root="./data", train=False, download=True, transform=trans
+        )
+    elif config.dataset == "imagenet":
+        dataset_train = torchvision.datasets.ImageNet(
+            root=IMAGENET_PATH, split="train", target_transform=trans
+        )
+        dataset_test = torchvision.datasets.ImageNet(
+            root=IMAGENET_PATH, split="val", target_transform=trans
+        )
+    else:
+        raise ValueError("unknown dataset_type")
 
     # dataset = IndexedDataset(None,)
 
