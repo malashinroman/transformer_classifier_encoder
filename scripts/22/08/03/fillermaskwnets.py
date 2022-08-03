@@ -1,4 +1,3 @@
-# __import__("pudb").set_trace()
 import os
 import sys
 
@@ -30,7 +29,7 @@ default_parameters = {
     "fixed_zero_exp_num": 1,
     "batch_size": 64,
     "device": "cuda:0",
-    "epochs": 100,
+    "epochs": 200,
     "num_workers": 8,
 }
 
@@ -43,7 +42,7 @@ for optimizer in ["AdamW"]:
                 [
                     {
                         "fixed_zero_exp_num": fixed_zero_exp_num,
-                        "tag": f"fill_mask_{optimizer}_{lr}",
+                        "tag": f"fill_mask_with_nets_{optimizer}_{lr}",
                         "model": "FILLMASK",
                         "optimizer": optimizer,
                         "lr": lr,

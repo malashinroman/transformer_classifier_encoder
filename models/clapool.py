@@ -58,8 +58,6 @@ class ClaPool(nn.Module):
         self.device = config.device
         super(ClaPool, self).__init__()
 
-        __import__("pudb").set_trace()
-
         # load cnn_networks weights
         # it was nessesary to resave nets state_dict only in *.pkl2
         nets = list_files_in_folder(config.weak_classifier_folder, "*.pkl2")
