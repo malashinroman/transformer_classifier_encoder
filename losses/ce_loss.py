@@ -16,7 +16,6 @@ class CrossEntropyLoss(nn.Module):
 
     def forward(self, data, net_output):
 
-        # __import__('pudb').set_trace()
         target = data["cifar_env_response"].argmax(dim=2).to(self.config.device)
         input = net_output["restored_resp"]
         target = target.view(-1)

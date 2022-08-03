@@ -2,7 +2,6 @@ import os
 import sys
 
 # import pdb
-# pdb.set_trace()
 sys.path.append(".")
 
 from script_manager.func.script_boilerplate import do_everything

@@ -1,8 +1,10 @@
+# __import__("pudb").set_trace()
 import os
 import sys
 
 sys.path.append(".")
 
+from local_config import WEAK_CLASSIFIERS
 from script_manager.func.script_boilerplate import do_everything
 from script_manager.func.script_parse_args import get_script_args
 
@@ -12,7 +14,7 @@ args = get_script_args()
 main_script = os.path.join("main.py")
 
 # weights and biases project name
-wandb_project_name = "SIMPLE_FC"
+wandb_project_name = "clebert"
 
 # keys
 appendix_keys = ["tag"]
@@ -25,36 +27,39 @@ test_parameters = {
 }
 
 default_parameters = {
-    "zeroout_prob": 0.15,
+    "fixed_zero_exp_num": 1,
     "batch_size": 64,
     "device": "cuda:0",
-    "epochs": 200,
+    "epochs": 100,
     "num_workers": 8,
 }
 
-# configs to be exectuted
 configs = []
 
-for lr in [1e-3, 1e-4, 1e-5]:
-    for batch_size in [128, 256]:
-        for model in ["SIMPLE_FC", "FILLMASK"]:
+for optimizer in ["AdamW"]:
+    for fixed_zero_exp_num in [1]:
+        for lr in [5e-5]:
             configs.append(
                 [
                     {
-                        "tag": "lr_{}_batch_{}_no_pl_{}".format(lr, batch_size, model),
+                        "fixed_zero_exp_num": fixed_zero_exp_num,
+                        "tag": f"fill_mask_{optimizer}_{lr}",
+                        "model": "FILLMASK",
+                        "optimizer": optimizer,
                         "lr": lr,
-                        "batch_size": batch_size,
-                        "model": "SIMPLE_FC",
                         "loss": "AE_MSE_LOSS",
+                        "weak_classifier_folder": os.path.join(
+                            WEAK_CLASSIFIERS,
+                            "cifar100_single_resent/2020-12-02T15-21-48_700332_weight_decay_0_0001_linear_search_False/tb",
+                        ),
+                        "classifiers_indexes": "[0,1,2,3,4,5,6,7,8,9]",
+                        "use_static_files": 0,
                     },
                     None,
                 ]
             )
-            # configs.append([{"tag": "SIMPLE_FC", "model": "SIMPLE_FC", "lr": 1e3}, None])
 
 print(f"total_number_of_scripts = {len(configs)}")
-# RUN everything
-# !normally you don't have to change anything here
 if __name__ == "__main__":
     do_everything(
         default_parameters=default_parameters,

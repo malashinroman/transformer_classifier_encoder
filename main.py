@@ -18,7 +18,13 @@ from utils import zeroout_experts
 
 sys.path.append(".")
 
+
+def str2intlist(v):
+    return [int(x.strip()) for x in v.strip()[1:-1].split(",")]
+
+
 parser = argparse.ArgumentParser()
+
 parser.add_argument("--batch_size", default=64, type=int)
 parser.add_argument("--device", default="cuda:0", type=str)
 parser.add_argument("--epochs", default=500, type=int)
@@ -31,8 +37,16 @@ parser.add_argument("--num_workers", default=0, type=int)
 parser.add_argument("--optimizer", default="Adam", type=str)
 parser.add_argument("--skip_training", default=0, type=int)
 parser.add_argument("--skip_validation", default=0, type=int)
+parser.add_argument("--use_static_files", default=1, type=int)
+parser.add_argument("--weak_classifier_folder", default=None, type=str)
 parser.add_argument("--zeroout_prob", default=0.15, type=float)
 
+parser.add_argument(
+    "--classifiers_indexes",
+    type=str2intlist,
+    default=None,
+    help="indexes of the classifiers",
+)
 config = smart_parse_args(parser)
 
 clebert_class = models.__dict__[config.model]
@@ -78,6 +92,30 @@ class AccuracyMeter:
         return self.correct / self.total * 100.0
 
 
+class DataPreparator(object):
+    def __init__(self, config):
+        self.config = config
+        if not self.config.use_static_files:
+            self.clapool = models.CLAPOOL(config)
+
+    def prepare_data(self, batch):
+        if self.config.use_static_files:
+            data = batch["cifar_env_response"]
+        else:
+            with torch.no_grad():
+                data = self.clapool(batch["image"])
+        """prepare data"""
+        corrupted, masked_indexes, indexes = zeroout_experts(
+            data,
+            config.zeroout_prob,
+            fixed_num=config.fixed_zero_exp_num,
+        )
+        corrupted = corrupted.to(config.device)
+        gt = batch["cifar_env_response"].to(config.device)
+        return corrupted, gt, indexes, masked_indexes
+
+
+data_preparator = DataPreparator(config)
 """ Main training loop """
 for epoch in range(epochs):
     clebert.eval()
@@ -89,18 +127,26 @@ for epoch in range(epochs):
         with torch.no_grad():
             with tqdm.tqdm(total=len(eval_dataloader)) as pbar:
                 for batch in eval_dataloader:
-                    # __import__("pudb").set_trace()
+
                     """prepare data"""
-                    corrupted, masked_indexes, indexes = zeroout_experts(
-                        batch["cifar_env_response"],
-                        config.zeroout_prob,
-                        fixed_num=config.fixed_zero_exp_num,
-                    )
-                    corrupted = corrupted.to(config.device)
+                    # corrupted, masked_indexes, indexes = zeroout_experts(
+                    #     batch["cifar_env_response"],
+                    #     config.zeroout_prob,
+                    #     fixed_num=config.fixed_zero_exp_num,
+                    # )
+                    # corrupted = corrupted.to(config.device)
+                    # gt = batch["cifar_env_response"].to(config.device)
+                    (
+                        corrupted,
+                        gt,
+                        indexes,
+                        masked_indexes,
+                    ) = data_preparator.prepare_data(batch)
+
+                    # forward pass
                     output = clebert(corrupted, masked_indexes)
 
                     # extract masked outputs for accuracy calculation
-                    gt = batch["cifar_env_response"].to(config.device)
                     masked_indexes = masked_indexes.to(config.device)
                     restored_embeddings = torch.masked_select(
                         output["restored_resp"], masked_indexes.bool().unsqueeze(-1)
