@@ -118,7 +118,7 @@ class DataPreparator(object):
             fixed_num=config.fixed_zero_exp_num,
         )
         corrupted = corrupted.to(config.device)
-        gt = batch["cifar_env_response"].to(config.device)
+        gt = data.to(config.device)
         return corrupted, gt, indexes, masked_indexes
 
 
