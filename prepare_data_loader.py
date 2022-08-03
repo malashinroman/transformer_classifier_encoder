@@ -12,6 +12,9 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 sys.path.append(".")
+import datasets
+
+# from datasets.imagenet_rec import ImageNetREC
 from local_config import IMAGENET_PATH, WEAK_CLASSIFIERS
 
 
@@ -155,12 +158,21 @@ def prepare_data_loader(config):
             root="./data", train=False, download=True, transform=trans
         )
     elif config.dataset == "imagenet":
-        dataset_train = torchvision.datasets.ImageNet(
-            root=IMAGENET_PATH, split="train", target_transform=trans
+        dataset_train = datasets.IMAGENET_DATASET(
+            root=IMAGENET_PATH, image_size=32, transform=trans, split="train"
         )
-        dataset_test = torchvision.datasets.ImageNet(
-            root=IMAGENET_PATH, split="val", target_transform=trans
+        dataset_test = datasets.IMAGENET_DATASET(
+            root=IMAGENET_PATH, image_size=32, transform=trans, split="val"
         )
+
+        # need to have tar files for pytorch interface
+        # dataset_train = torchvision.datasets.ImageNet(
+        #     root=IMAGENET_PATH, split="train", target_transform=trans
+        # )
+        # dataset_test = torchvision.datasets.ImageNet(
+        #     root=IMAGENET_PATH, split="val", target_transform=trans
+        # )
+
     else:
         raise ValueError("unknown dataset_type")
 
