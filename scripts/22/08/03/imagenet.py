@@ -42,7 +42,7 @@ for optimizer in ["AdamW"]:
                 [
                     {
                         "fixed_zero_exp_num": fixed_zero_exp_num,
-                        "tag": f"fill_mask_with_nets_{optimizer}_{lr}",
+                        "tag": f"imagenet_{optimizer}_{lr}",
                         "model": "FILLMASK",
                         "optimizer": optimizer,
                         "lr": lr,
