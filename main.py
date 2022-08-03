@@ -118,7 +118,7 @@ class DataPreparator(object):
             fixed_num=config.fixed_zero_exp_num,
         )
         corrupted = corrupted.to(config.device)
-        gt = batch["cifar_env_response"].to(config.device)
+        gt = data.to(config.device)
         return corrupted, gt, indexes, masked_indexes
 
 
@@ -136,13 +136,7 @@ for epoch in range(epochs):
                 for batch in eval_dataloader:
 
                     """prepare data"""
-                    # corrupted, masked_indexes, indexes = zeroout_experts(
-                    #     batch["cifar_env_response"],
-                    #     config.zeroout_prob,
-                    #     fixed_num=config.fixed_zero_exp_num,
-                    # )
-                    # corrupted = corrupted.to(config.device)
-                    # gt = batch["cifar_env_response"].to(config.device)
+
                     (
                         corrupted,
                         gt,
@@ -165,7 +159,7 @@ for epoch in range(epochs):
                     val_accuracy_meter.update(restored_embeddings, gt_restored)
                     val_accuracy = val_accuracy_meter.get_accuracy()
                     # compute loss
-                    loss = loss_function(batch, output)
+                    loss = loss_function(output, gt)
                     eval_total_loss += loss.item()
                     pbar.set_description(
                         f"epoch {epoch} / {config.epochs}:  total_loss:{eval_total_loss:.2f}"
@@ -188,20 +182,26 @@ for epoch in range(epochs):
             train_total_loss = 0
             for ind, batch in enumerate(train_dataloader):
                 optimizer.zero_grad()
-                corrupted, masked_indexes, indexes = zeroout_experts(
-                    batch["cifar_env_response"],
-                    config.zeroout_prob,
-                    fixed_num=config.fixed_zero_exp_num,
-                )
+                # corrupted, masked_indexes, indexes = zeroout_experts(
+                #     batch["cifar_env_response"],
+                #     config.zeroout_prob,
+                #     fixed_num=config.fixed_zero_exp_num,
+                # )
 
+                (
+                    corrupted,
+                    gt,
+                    indexes,
+                    masked_indexes,
+                ) = data_preparator.prepare_data(batch)
                 corrupted = corrupted.to(config.device)
+
                 output = clebert(corrupted, masked_indexes)
-                loss = loss_function(batch, output)
+                loss = loss_function(output, gt)
                 loss.backward()
                 optimizer.step()
                 train_total_loss += loss.item()
 
-                gt = batch["cifar_env_response"].to(config.device)
                 masked_indexes = masked_indexes.to(config.device)
                 restored_embeddings = torch.masked_select(
                     output["restored_resp"], masked_indexes.bool().unsqueeze(-1)
