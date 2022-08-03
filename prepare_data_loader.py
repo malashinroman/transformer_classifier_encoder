@@ -1,15 +1,17 @@
+import json
 import os
 import sys
-
-sys.path.append(".")
+import unicodedata
 from pathlib import Path
 
 import numpy as np
+import six
 import torch.utils.data as data
 import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
+sys.path.append(".")
 from local_config import WEAK_CLASSIFIERS
 
 
@@ -17,6 +19,30 @@ def list_files_in_folder(folder, pattern="*test_responses.npy"):
     all_nets = list(Path(folder).rglob(pattern))
     all_nets = [str(n) for n in all_nets]
     return sorted(all_nets)
+
+
+def read_json(filename):
+    def _convert_from_unicode(data):
+        new_data = dict()
+        for name, value in six.iteritems(data):
+            if isinstance(name, six.string_types):
+                name = unicodedata.normalize("NFKD", name).encode("ascii", "ignore")
+            if isinstance(value, six.string_types):
+                value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore")
+            if isinstance(value, dict):
+                value = _convert_from_unicode(value)
+            new_data[name] = value
+        return new_data
+
+    output_dict = None
+    with open(filename, "r") as f:
+        lines = f.readlines()
+        try:
+            output_dict = json.loads("".join(lines), encoding="utf-8")
+        except:
+            raise ValueError("Could not read %s. %s" % (filename, sys.exc_info()[1]))
+        output_dict = _convert_from_unicode(output_dict)
+    return output_dict
 
 
 def get_cifar_env_response_files2(
@@ -54,6 +80,29 @@ def get_cifar_env_response_files2(
             train_resp_files_used.append(train_resp_files[i])
             classifier_responses.append(merged_resp)
 
+        # else:
+        #     nets = list_files_in_folder(weak_classifier_folder, '*.pkl')
+        #     jsons = list_files_in_folder(weak_classifier_folder, '*.json')
+        #     net_models = [str(read_json(json)[b'model'])[2:-1] for json in jsons]
+        #     architectures = models
+        #     # self.loaded_networks = [architectures[net_model](config, [3,32,32]) for net_model in net_models]
+        #     self.loaded_networks = torch.nn.ModuleList()
+
+        #     for i in classifiers_indexes:
+        #         data = torch.load(nets[i])
+        #         model_name = net_models[i]
+        #         input_shape = self.config.dataset_image_shape
+        #         if self.config.patch_size > 0:
+        #             input_shape = (self.config.dataset_image_shape[0], self.config.patch_size, self.config.patch_size)
+        #         loaded_network = architectures[model_name](config, input_shape)
+        #         # if 'total_ops' in data['state_dict']:
+        #             # from thop import profile
+        #             # profile(loaded_network, inputs=({'image': torch.zeros((1,) +input_shape).cuda()},))
+        #         load_state_dict_into_module(data['state_dict'], loaded_network)
+        #         # loaded_network.load_state_dict(state_dict=data['state_dict'])
+        #         loaded_network = loaded_network.to(self.device)
+        #         self.loaded_networks.append(loaded_network)
+
     return classifier_responses
 
 
@@ -64,13 +113,14 @@ class IndexedDataset(data.Dataset):
         self.size = len(self.cifar)
         self.replicates = 1
         self.index_correction = index_correction
-        cifar_100_weak_classifiers_path = os.path.join(
-            WEAK_CLASSIFIERS,
-            "cifar100_single_resent/2020-12-02T15-21-48_700332_weight_decay_0_0001_linear_search_False/tb",
-        )
+        cifar_100_weak_classifiers_path = args.weak_classifier_folder
+        # cifar_100_weak_classifiers_path = os.path.join(
+        #     WEAK_CLASSIFIERS,
+        #     "cifar100_single_resent/2020-12-02T15-21-48_700332_weight_decay_0_0001_linear_search_False/tb",
+        # )
         # if self._args.semi_environment == "cifar_env_responder":
         all_responses = get_cifar_env_response_files2(
-            list(range(10)), False, cifar_100_weak_classifiers_path
+            self._args.classifiers_indexes, False, cifar_100_weak_classifiers_path
         )
         self.all_responses = np.stack(all_responses, axis=1)
 
