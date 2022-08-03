@@ -88,7 +88,7 @@ class ClaPool(nn.Module):
 
             load_state_dict_into_module(data, loaded_network)
             loaded_network = loaded_network.to(self.device)
-            self.loaded_networks.append(loaded_network)
+            self.loaded_networks.append(loaded_network.eval())
 
         for net in self.loaded_networks:
             for p in net.parameters():
