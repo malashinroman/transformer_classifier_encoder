@@ -177,6 +177,17 @@ def prepare_data_loader(config):
         raise ValueError("unknown dataset_type")
 
     # dataset = IndexedDataset(None,)
+    indices_train = list(range(len(dataset_train)))
+    indices_test = list(range(len(dataset_test)))
+
+    if config.train_set_size > 0:
+        indices_train = indices_train[0 : config.train_set_size]
+
+    if config.test_set_size > 0:
+        indices_test = indices_test[0 : config.test_set_size]
+
+    dataset_train = data.Subset(dataset_train, indices_train)
+    dataset_test = data.Subset(dataset_test, indices_test)
 
     dataset_train = IndexedDataset(config, dataset_train)
     dataset_test = IndexedDataset(config, dataset_test, len(dataset_train))
