@@ -42,7 +42,7 @@ for optimizer in ["AdamW"]:
                 [
                     {
                         "fixed_zero_exp_num": fixed_zero_exp_num,
-                        "tag": f"imagenet_{optimizer}_{lr}",
+                        "tag": f"cifar100_FILLMASK_RAND_{optimizer}_{lr}",
                         "model": "FILLMASK_RAND",
                         "optimizer": optimizer,
                         "lr": lr,
