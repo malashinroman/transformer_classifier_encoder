@@ -158,3 +158,5 @@ dmypy.json
 .Spotlight-V100
 .Trashes
 ._*
+
+notable_checkpoints/imagenet_pretrained
