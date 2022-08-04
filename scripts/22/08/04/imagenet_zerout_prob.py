@@ -34,13 +34,13 @@ default_parameters = {
 }
 
 configs = []
-for zeroout_prob in [0.6]:
+for zeroout_prob in [0.8]:
     configs.append(
         [
             {
                 "zeroout_prob": zeroout_prob,
                 "fixed_zero_exp_num": 0,
-                "tag": f"cifar100_zeroout_prob",
+                "tag": f"cifar100_zeroout_prob_{zeroout_prob}",
                 "model": "FILLMASK_RAND",
                 "optimizer": "AdamW",
                 "lr": 5e-5,
@@ -51,7 +51,8 @@ for zeroout_prob in [0.6]:
                 ),
                 "classifiers_indexes": "[0,1,2,3,4,5,6,7,8,9]",
                 "use_static_files": 0,
-                "dataset": "cifar100",
+                "dataset": "imagenet",
+                "random_seed": 0,
             },
             None,
         ]
