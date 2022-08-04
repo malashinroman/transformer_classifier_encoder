@@ -32,7 +32,7 @@ default_parameters = {
     "device": "cuda:0",
     "epochs": 0,
     "fixed_zero_exp_num": 1,
-    "model": "FILLMASK",
+    "model": "FILLMASK_RAND",
     "num_workers": 8,
     "skip_training": 1,
     "use_static_files": 0,
@@ -45,7 +45,7 @@ default_parameters = {
 
 configs = []
 checkpoints = [
-    "notable_checkpoints/imagenet_pretrained/best_net_ep1.pkl",
+    # "notable_checkpoints/imagenet_pretrained/best_net_ep1.pkl",
     "notable_checkpoints/imagenet_pretrained/best_net_ep5.pkl",
 ]
 
