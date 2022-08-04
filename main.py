@@ -41,6 +41,8 @@ parser.add_argument("--skip_validation", default=0, type=int)
 parser.add_argument("--use_static_files", default=1, type=int)
 parser.add_argument("--zeroout_prob", default=0.15, type=float)
 parser.add_argument("--dataset", default="cifar100", type=str)
+parser.add_argument("--train_set_size", default=0, type=int)
+parser.add_argument("--test_set_size", default=0, type=int)
 parser.add_argument(
     "--weak_classifier_folder",
     type=str,
@@ -136,7 +138,6 @@ for epoch in range(epochs):
                 for batch in eval_dataloader:
 
                     """prepare data"""
-
                     (
                         corrupted,
                         gt,
@@ -171,9 +172,11 @@ for epoch in range(epochs):
             if eval_total_loss < best_total_loss and not config.skip_training:
                 best_path = os.path.join(config.output_dir, "best_net.pkl")
                 torch.save(clebert.state_dict(), best_path)
-                with open("best_net.info", "w") as fp:
+                info_path = os.path.join(config.output_dir, "best_net.info")
+                with open(info_path, "w") as fp:
                     json.dump({"epoch": epoch, "eval_total_loss": eval_total_loss}, fp)
                 best_total_loss = eval_total_loss
+                print("best checkpoint saved")
 
     """ Train on the training set """
     if not config.skip_training:
@@ -182,11 +185,6 @@ for epoch in range(epochs):
             train_total_loss = 0
             for ind, batch in enumerate(train_dataloader):
                 optimizer.zero_grad()
-                # corrupted, masked_indexes, indexes = zeroout_experts(
-                #     batch["cifar_env_response"],
-                #     config.zeroout_prob,
-                #     fixed_num=config.fixed_zero_exp_num,
-                # )
 
                 (
                     corrupted,

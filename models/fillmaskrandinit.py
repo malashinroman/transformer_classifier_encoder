@@ -1,15 +1,18 @@
-# type: ignore
 import torch
 import torch.nn as nn
-from transformers import BertModel, BertTokenizer
+from transformers import AutoConfig, BertModel
 
 
-class FillMask(nn.Module):
+class FillMaskRand(nn.Module):
     def __init__(self, config):
         self.config = config
         self.device = config.device
-        super(FillMask, self).__init__()
-        self.bert = BertModel.from_pretrained("bert-base-uncased")
+        super(FillMaskRand, self).__init__()
+
+        # __import__('pudb').set_trace()
+        # self.bert = BertModel.from_pretrained("bert-base-uncased")
+        bert_config = AutoConfig.from_pretrained("bert-base-uncased")
+        self.bert = BertModel(bert_config)
 
         words_indexes = torch.Tensor([list(range(10))]).long().to(self.device)
         self.bert.to(self.device)
