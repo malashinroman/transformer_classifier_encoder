@@ -89,16 +89,19 @@ class AccuracyMeter:
         self.total = 0
 
     def update(self, output, ground_truth):
-        target = ground_truth.argmax(dim=2)
-        pred = output.argmax(dim=2)
+        target = ground_truth.argmax(dim=1)
+        pred = output.argmax(dim=1)
         correct = pred.eq(target).sum().item()
         self.correct += correct
 
         # we have prediction for each expert
-        self.total += target.shape[0] * target.shape[1]
+        self.total += target.shape[0]
 
     def get_accuracy(self):
-        return self.correct / self.total * 100.0
+        if self.total > 0:
+            return self.correct / self.total * 100.0
+        else:
+            return 0.0
 
 
 class DataPreparator(object):
@@ -152,10 +155,10 @@ for epoch in range(epochs):
                     masked_indexes = masked_indexes.to(config.device)
                     restored_embeddings = torch.masked_select(
                         output["restored_resp"], masked_indexes.bool().unsqueeze(-1)
-                    ).view(gt.shape[0], len(indexes[0]), -1)
+                    ).view(-1, 100)
                     gt_restored = torch.masked_select(
                         gt, masked_indexes.bool().unsqueeze(-1)
-                    ).view(gt.shape[0], len(indexes[0]), -1)
+                    ).view(-1, 100)
 
                     val_accuracy_meter.update(restored_embeddings, gt_restored)
                     val_accuracy = val_accuracy_meter.get_accuracy()
@@ -203,10 +206,10 @@ for epoch in range(epochs):
                 masked_indexes = masked_indexes.to(config.device)
                 restored_embeddings = torch.masked_select(
                     output["restored_resp"], masked_indexes.bool().unsqueeze(-1)
-                ).view(gt.shape[0], len(indexes[0]), -1)
+                ).view(-1, 100)
                 gt_restored = torch.masked_select(
                     gt, masked_indexes.bool().unsqueeze(-1)
-                ).view(gt.shape[0], len(indexes[0]), -1)
+                ).view(-1, 100)
 
                 train_accuracy_meter.update(restored_embeddings, gt_restored)
                 train_accuracy = train_accuracy_meter.get_accuracy()
