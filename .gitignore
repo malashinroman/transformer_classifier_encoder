@@ -160,3 +160,5 @@ dmypy.json
 ._*
 
 notable_checkpoints/imagenet_pretrained
+
+notable_checkpoints/imagenet_pretrained_zeroprob
