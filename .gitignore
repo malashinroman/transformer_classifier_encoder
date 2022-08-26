@@ -159,6 +159,8 @@ dmypy.json
 .Trashes
 ._*
 
-notable_checkpoints/imagenet_pretrained
+notable_checkpoints
 
 notable_checkpoints/imagenet_pretrained_zeroprob
+
+notable_checkpoints/imagenet_pretrained_zeroprob_200_ep
