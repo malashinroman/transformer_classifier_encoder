@@ -8,6 +8,7 @@ import torch
 import torch.optim as optim
 import tqdm
 from torch.optim import Adam
+from torch.optim.lr_scheduler import MultiStepLR, ReduceLROnPlateau
 
 import losses
 import models
@@ -43,6 +44,9 @@ parser.add_argument("--zeroout_prob", default=0.15, type=float)
 parser.add_argument("--dataset", default="cifar100", type=str)
 parser.add_argument("--train_set_size", default=0, type=int)
 parser.add_argument("--test_set_size", default=0, type=int)
+parser.add_argument("--lr_scheduler", default="MultiStepLR", type=str)
+parser.add_argument("--lr_milestones", default=None, type=str2intlist)
+parser.add_argument("--lr_gamma", default=0.1, type=float)
 parser.add_argument(
     "--weak_classifier_folder",
     type=str,
@@ -64,6 +68,13 @@ clebert.to(config.device)
 # optimizer = Adam(clebert.parameters(), lr=config.lr)
 optimizer = optim.__dict__[config.optimizer](clebert.parameters(), lr=config.lr)
 train_dataloader, eval_dataloader = prepare_data_loader(config)
+
+if config.lr_scheduler == "ReduceLROnPlateau":
+    lr_scheduler = ReduceLROnPlateau(optimizer, "min", patience=config.lr_patience)
+elif config.lr_scheduler == "MultiStepLR":
+    lr_scheduler = MultiStepLR(optimizer, milestones=config.lr_milestones)
+else:
+    raise ValueError("unknown sheduler type")
 
 """loss function"""
 loss_function_class = losses.__dict__[config.loss]
@@ -116,12 +127,14 @@ class DataPreparator(object):
         else:
             with torch.no_grad():
                 data = self.clapool(batch["image"])
+
         """prepare data"""
         corrupted, masked_indexes, indexes = zeroout_experts(
             data,
             config.zeroout_prob,
             fixed_num=config.fixed_zero_exp_num,
         )
+
         corrupted = corrupted.to(config.device)
         gt = data.to(config.device)
         return corrupted, gt, indexes, masked_indexes
@@ -218,7 +231,10 @@ for epoch in range(epochs):
                 pbar.set_description(
                     f"train_total_loss:{train_total_loss:.2f}"
                     f"  train_accuracy: {train_accuracy:.2f}"
+                    f" lr: {optimizer.param_groups[0]['lr']}",
                 )
+
+            lr_scheduler.step(0)
 
             train_accuracy = train_accuracy_meter.get_accuracy()
             write_wandb_dict(
@@ -228,6 +244,7 @@ for epoch in range(epochs):
                     "train_total_loss": train_total_loss,
                     "val_total_loss": eval_total_loss,
                     "custom_step": epoch,
+                    "lr": optimizer.param_groups[0]["lr"],
                 },
                 commit=True,
             )

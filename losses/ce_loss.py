@@ -15,10 +15,9 @@ class CrossEntropyLoss(nn.Module):
         self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, net_output, gt):
-
+        output = net_output["restored_resp"]
         target = gt.argmax(dim=2).to(self.config.device)
-        input = net_output["restored_resp"]
         target = target.view(-1)
-        input = input.view(-1, input.shape[-1])
+        output = output.view(-1, output.shape[-1])
 
-        return self.criterion(input, target)
+        return self.criterion(output, target)
