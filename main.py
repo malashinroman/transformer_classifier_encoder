@@ -47,6 +47,7 @@ parser.add_argument("--test_set_size", default=0, type=int)
 parser.add_argument("--lr_scheduler", default="MultiStepLR", type=str)
 parser.add_argument("--lr_milestones", default=None, type=str2intlist)
 parser.add_argument("--lr_gamma", default=0.1, type=float)
+parser.add_argument("--use_pretrained_bert", default=0, type=int)
 parser.add_argument(
     "--weak_classifier_folder",
     type=str,

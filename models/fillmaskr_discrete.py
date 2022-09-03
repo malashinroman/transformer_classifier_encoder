@@ -13,8 +13,13 @@ class FillMaskRandDiscrete(nn.Module):
 
         # __import__('pudb').set_trace()
         # self.bert = BertModel.from_pretrained("bert-base-uncased")
-        bert_config = AutoConfig.from_pretrained("bert-base-uncased")
-        self.bert = BertModel(bert_config)
+        if self.config.use_pretrained_bert:
+            self.bert = BertModel.from_pretrained("bert-base-uncased")
+            print("using pretrained bert")
+        else:
+            bert_config = AutoConfig.from_pretrained("bert-base-uncased")
+            self.bert = BertModel(bert_config)
+            print("using randomly initialized bert")
 
         words_indexes = torch.Tensor([list(range(10))]).long().to(self.device)
         self.bert.to(self.device)
