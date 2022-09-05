@@ -52,7 +52,7 @@ for zeroout_prob in [0.8]:
                 "model": "FILLMASK_RAND_DISCRETE2",
                 "optimizer": "AdamW",
                 "random_seed": 0,
-                "tag": f"imagenet_zeroout_prob_{zeroout_prob}_discrete2",
+                "tag": f"imagenet_discrete_random_bert",
                 "use_static_files": 0,
                 "zeroout_prob": zeroout_prob,
                 "use_pretrained_bert": 0,
