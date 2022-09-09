@@ -3,7 +3,7 @@ import sys
 
 sys.path.append(".")
 
-from local_config import WEAK_CLASSIFIERS
+from local_config import TRANSFORMER_CLASSIFIER_ENCODER_PATH, WEAK_CLASSIFIERS
 from script_manager.func.script_boilerplate import do_everything
 from script_manager.func.script_parse_args import get_script_args
 
@@ -39,8 +39,10 @@ default_parameters = {
     "lr_milestones": "[100,150]",
 }
 
-
-load_checkpoint_path = "/media/Data1/projects/new/unspervised_lac/transformer_classifier_encoder/notable_checkpoints/imagenet_pretrained_zeroprob_200_ep/best_net.pkl"
+load_checkpoint_path = os.path.join(
+    TRANSFORMER_CLASSIFIER_ENCODER_PATH,
+    "notable_checkpoints/imagenet_pretrained_zeroprob_200_ep/best_net.pkl",
+)
 configs = []
 for fixed_zero_exp_num in range(1, 10):
     configs.append(
