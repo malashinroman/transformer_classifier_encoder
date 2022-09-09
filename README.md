@@ -25,7 +25,6 @@ loss = disssimilarity(restored_sequence, sequence)
 | bert-uncased | logits           |          0.8 |    65.85 |
 | bert-uncased | classifier index |          0.8 |    46.59 |
 
-
 | shown classifiers | reward | val. acc(restored) |
 |               :-: |    :-: |                :-: |
 |                 1 |   5.35 |              65.26 |
@@ -36,6 +35,9 @@ loss = disssimilarity(restored_sequence, sequence)
 |                 6 |   6.67 |              76.67 |
 |                 7 |   6.99 |              77.06 |
 |                 8 |   7.31 |              77.01 |
+|                 9 |   7.62 |              74.90 |
+
+
 
 
 
