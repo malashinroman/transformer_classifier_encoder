@@ -5,8 +5,6 @@ import torch
 
 
 def zeroout_experts(tensor_: torch.Tensor, prob: float, fixed_num: int = 0):
-    if prob == 0.0:
-        return tensor_
     tensor = tensor_.clone()
     batch_size = tensor.shape[0]
     expert_num = tensor.shape[1]
@@ -15,7 +13,11 @@ def zeroout_experts(tensor_: torch.Tensor, prob: float, fixed_num: int = 0):
     destroyed_indexes = []
     for i in range(batch_size):
         if fixed_num <= 0:
-            expert_to_destroy = [i for i in indexes if random.random() < prob]
+
+            if prob == 0.0:
+                expert_to_destroy = []
+            else:
+                expert_to_destroy = [i for i in indexes if random.random() < prob]
         else:
             expert_to_destroy = random.sample(range(0, expert_num), fixed_num)
 
