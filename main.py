@@ -101,13 +101,14 @@ class AccuracyMeter:
         self.total = 0
 
     def update(self, output, ground_truth):
-        target = ground_truth.argmax(dim=1)
-        pred = output.argmax(dim=1)
-        correct = pred.eq(target).sum().item()
-        self.correct += correct
+        with torch.no_grad():
+            target = ground_truth.argmax(dim=1)
+            pred = output.argmax(dim=1)
+            correct = pred.eq(target).sum().item()
+            self.correct += correct
 
-        # we have prediction for each expert
-        self.total += target.shape[0]
+            # we have prediction for each expert
+            self.total += target.shape[0]
 
     def get_accuracy(self):
         if self.total > 0:
@@ -143,9 +144,12 @@ class DataPreparator(object):
 
 data_preparator = DataPreparator(config)
 """ Main training loop """
+# __import__('pudb').set_trace()
 for epoch in range(epochs):
     clebert.eval()
+    train_total_loss = 0
     eval_total_loss = 0
+    val_total_accuracy_meter = AccuracyMeter()
     val_accuracy_meter = AccuracyMeter()
     train_accuracy_meter = AccuracyMeter()
     """ Evaluate on the validation set """
@@ -175,7 +179,9 @@ for epoch in range(epochs):
                     ).view(-1, 100)
 
                     val_accuracy_meter.update(restored_embeddings, gt_restored)
+                    val_total_accuracy_meter.update(output["restored_resp"], gt)
                     val_accuracy = val_accuracy_meter.get_accuracy()
+
                     # compute loss
                     loss = loss_function(output, gt)
                     eval_total_loss += loss.item()
@@ -185,6 +191,8 @@ for epoch in range(epochs):
                     )
                     pbar.update(1)
                 val_accuracy = val_accuracy_meter.get_accuracy()
+                total_val_accuracy = val_total_accuracy_meter.get_accuracy()
+
             print(f"eval_loss:{eval_total_loss}")
             if eval_total_loss < best_total_loss and not config.skip_training:
                 best_path = os.path.join(config.output_dir, "best_net.pkl")
@@ -238,14 +246,16 @@ for epoch in range(epochs):
             lr_scheduler.step(0)
 
             train_accuracy = train_accuracy_meter.get_accuracy()
-            write_wandb_dict(
-                {
-                    "train_accuracy": train_accuracy_meter.get_accuracy(),
-                    "val_accuracy": val_accuracy_meter.get_accuracy(),
-                    "train_total_loss": train_total_loss,
-                    "val_total_loss": eval_total_loss,
-                    "custom_step": epoch,
-                    "lr": optimizer.param_groups[0]["lr"],
-                },
-                commit=True,
-            )
+
+    write_wandb_dict(
+        {
+            "train_accuracy": train_accuracy_meter.get_accuracy(),
+            "val_accuracy": val_accuracy_meter.get_accuracy(),
+            "val_total_accuracy": val_total_accuracy_meter.get_accuracy(),
+            "train_total_loss": train_total_loss,
+            "val_total_loss": eval_total_loss,
+            "custom_step": epoch,
+            "lr": optimizer.param_groups[0]["lr"],
+        },
+        commit=True,
+    )

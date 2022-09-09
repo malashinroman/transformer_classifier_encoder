@@ -32,8 +32,12 @@ class FillMaskRand(nn.Module):
         if indexes is not None:
             tmp = indexes.long().to(self.device)
             type_embeddings = self.bert.embeddings.token_type_embeddings(tmp).detach()
+
+        batch_size = embeddings.shape[0]
         final_embeddings = (
-            embeddings + self.word_positional_embeddings + type_embeddings
+            embeddings
+            + self.word_positional_embeddings.repeat([batch_size, 1, 1])
+            + type_embeddings
         )
         final_embeddings = self.bert.embeddings.LayerNorm(final_embeddings)
         vectors = self.bert.encoder(final_embeddings)["last_hidden_state"]
