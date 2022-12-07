@@ -9,7 +9,6 @@ class FillMaskRand(nn.Module):
         self.device = config.device
         super(FillMaskRand, self).__init__()
 
-        # __import__('pudb').set_trace()
         # self.bert = BertModel.from_pretrained("bert-base-uncased")
         bert_config = AutoConfig.from_pretrained("bert-base-uncased")
         self.bert = BertModel(bert_config)
