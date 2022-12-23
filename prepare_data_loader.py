@@ -151,6 +151,7 @@ def prepare_data_loader(config):
         ]
     )
     if config.dataset == "cifar100":
+        # FIXME: SHOULD BE CIFAR100-here??
         dataset_train = torchvision.datasets.CIFAR10(
             root="./data", train=True, download=True, transform=trans
         )

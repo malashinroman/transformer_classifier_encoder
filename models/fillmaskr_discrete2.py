@@ -6,12 +6,26 @@ from transformers import AutoConfig, BertModel
 
 
 class FillMaskRandDiscrete2(nn.Module):
+    """
+    Bert to predict classifiers responses in discrete form.
+
+    First convert classifiers responses to indexes.
+    Index corresponds to the max response (predicted image class).
+    """
+
     def __init__(self, config):
+        """
+        Initialize all the necessary modules of the neural network.
+
+        Parameters
+        -----
+        config : namespace
+              program attributes
+        """
         self.config = config
         self.device = config.device
         super(FillMaskRandDiscrete2, self).__init__()
 
-        # self.bert = BertModel.from_pretrained("bert-base-uncased")
         if self.config.use_pretrained_bert:
             self.bert = BertModel.from_pretrained("bert-base-uncased")
             print("using pretrained bert")
@@ -20,16 +34,12 @@ class FillMaskRandDiscrete2(nn.Module):
             self.bert = BertModel(bert_config)
             print("using randomly initialized bert")
 
-        # print(list(self.bert.parameters())[-1])
-        # __import__('pudb').set_trace()
-
         words_indexes = torch.Tensor([list(range(10))]).long().to(self.device)
         self.bert.to(self.device)
         self.word_positional_embeddings = self.bert.embeddings.position_embeddings(
             words_indexes
         ).detach()
 
-        # self.response2embedding = nn.Linear(100, 768).to(self.device)
         self.vector2response = nn.Linear(768, 100)
 
         word_type = torch.Tensor([[1 for _ in range(10)]]).long().to(self.device)
@@ -38,10 +48,19 @@ class FillMaskRandDiscrete2(nn.Module):
         ).detach()
 
     def forward(self, corrupted_responses, indexes) -> Dict[str, torch.Tensor]:
+        """
+        Make prediction.
+
+        Parameters:
+            corrupted_responses: response table with randomly zeroed classifeirs' responses
+            indexes: indexes of the zeroed responses
+        """
+        # compute the indexes of the max responses
         words = corrupted_responses.argmax(dim=2)
+
+        # use word2vec in bert
         words_embeddings = self.bert.embeddings.word_embeddings(words)
 
-        # embeddings = self.response2embedding(corrupted_responses.to(self.device))
         type_embeddings = self.type_embedding
         if indexes is not None:
             tmp = indexes.long().to(self.device)
