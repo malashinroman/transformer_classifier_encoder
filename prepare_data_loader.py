@@ -15,7 +15,7 @@ sys.path.append(".")
 import datasets
 
 # from datasets.imagenet_rec import ImageNetREC
-from local_config import IMAGENET_PATH, WEAK_CLASSIFIERS
+from local_config import IMAGENET_PATH, WEAK_CLASSIFIERS, IMAGENET21K_PATH
 
 
 def list_files_in_folder(folder, pattern="*test_responses.npy"):
@@ -152,7 +152,8 @@ def prepare_data_loader(config):
     )
     if config.dataset == "cifar100":
         # FIXME: SHOULD BE CIFAR100-here??
-        dataset_train = torchvision.datasets.CIFAR10(
+        # FIXED!
+        dataset_train = torchvision.datasets.CIFAR100(
             root="./data", train=True, download=True, transform=trans
         )
         dataset_test = torchvision.datasets.CIFAR10(
@@ -173,6 +174,17 @@ def prepare_data_loader(config):
         # dataset_test = torchvision.datasets.ImageNet(
         #     root=IMAGENET_PATH, split="val", target_transform=trans
         # )
+    elif config.dataset == "imagenet21k":
+        dataset_train = datasets.IMAGENET_DATASET(
+            root=IMAGENET21K_PATH, image_size=32, transform=trans, split="train",
+            train_subfolder="imagenet21k_train",
+            val_subfolder="imagenet21k_val"
+        )
+        dataset_test = datasets.IMAGENET_DATASET(
+            root=IMAGENET21K_PATH, image_size=32, transform=trans, split="val",
+            train_subfolder="imagenet21k_train",
+            val_subfolder="imagenet21k_val"
+        )
 
     else:
         raise ValueError("unknown dataset_type")

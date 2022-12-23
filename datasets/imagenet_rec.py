@@ -15,6 +15,8 @@ class ImageNetREC(data.Dataset):
         image_size=128,
         transform=None,
         split="train",
+        train_subfolder="ILSVRC2012_img_train",
+        val_subfolder="VAL_SET/imgs",
     ):
         self.image_list = []
         self.image_ids = []
@@ -22,11 +24,11 @@ class ImageNetREC(data.Dataset):
         self.image_size = image_size
 
         if split == "train":
-            image_folder = os.path.join(root, "ILSVRC2012_img_train")
+            image_folder = os.path.join(root, train_subfolder)
         elif split == "val":
             if os.path.basename(root) == "":
                 root = os.path.dirname(root)
-            image_folder = os.path.join(root, "VAL_SET", "imgs")
+            image_folder = os.path.join(root, val_subfolder)
 
         else:
             raise ValueError(f"unknown split type {split}")

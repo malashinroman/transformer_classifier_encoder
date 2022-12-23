@@ -31,6 +31,7 @@ parser.add_argument("--batch_size", default=64, type=int)
 parser.add_argument("--device", default="cuda:0", type=str)
 parser.add_argument("--epochs", default=500, type=int)
 parser.add_argument("--fixed_zero_exp_num", default=0, type=int)
+parser.add_argument("--hugging_face_model", default=None, type=str)
 parser.add_argument("--load_checkpoint", default=None, type=str)
 parser.add_argument("--loss", default="AE_MSE_LOSS", type=str)
 parser.add_argument("--lr", default=1e-3, type=float)
@@ -144,7 +145,6 @@ class DataPreparator(object):
 
 data_preparator = DataPreparator(config)
 """ Main training loop """
-# __import__('pudb').set_trace()
 for epoch in range(epochs):
     clebert.eval()
     train_total_loss = 0
