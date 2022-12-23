@@ -40,10 +40,10 @@ for zeroout_prob in [0.15]:
         configs.append(
             [
                 {
-                    "hugging_face_model":
+                    "hugging_face_model": hugging_face_model,
                     "zeroout_prob": zeroout_prob,
                     "fixed_zero_exp_num": 0,
-                    "tag": f"imagenet21k_zeroout_prob_{zeroout_prob}",
+                    "tag": f"imagenet21k_zeroout_prob_{zeroout_prob}_{hugging_face_model}",
                     "model": "FILLMASK_GPT2",
                     "optimizer": "AdamW",
                     "lr": 5e-5,
@@ -54,8 +54,8 @@ for zeroout_prob in [0.15]:
                     ),
                     "classifiers_indexes": "[0,1,2,3,4,5,6,7,8,9]",
                     "use_static_files": 0,
-                    # "dataset": "imagenet21k",
-                    "dataset": "cifar100",
+                    "dataset": "imagenet21k",
+                    # "dataset": "cifar100",
                     "random_seed": 0,
                 },
                 None,
