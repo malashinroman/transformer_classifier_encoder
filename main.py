@@ -94,8 +94,6 @@ else:
     epochs = config.epochs
 
 """class that measures accuracy during training"""
-
-
 class AccuracyMeter:
     def __init__(self):
         self.correct = 0
