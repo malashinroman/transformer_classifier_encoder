@@ -1,6 +1,5 @@
+import sys 
 import os
-import sys
-
 sys.path.append(".")
 
 from local_config import WEAK_CLASSIFIERS
@@ -29,24 +28,26 @@ default_parameters = {
     "fixed_zero_exp_num": 1,
     "batch_size": 64,
     "device": "cuda:0",
-    "epochs": 40,
-    "num_workers": 8,
+    "epochs": 150,
+    "num_workers": 12,
 }
 
 configs = []
 # for zeroout_prob in [0.15, 0.8]:
 for zeroout_prob in [0.15]:
-    for hugging_face_model in ["gpt2", "gpt2-medium", "gpt2-large"]:
+    for hugging_face_model in ["gpt2-large", "gpt2-medium", "gpt2"]:
         configs.append(
             [
                 {
                     "hugging_face_model": hugging_face_model,
                     "zeroout_prob": zeroout_prob,
                     "fixed_zero_exp_num": 0,
-                    "tag": f"imagenet21k_zeroout_prob_{zeroout_prob}_{hugging_face_model}",
+                    "tag": f"imagenet_zeroout_prob_{zeroout_prob}_{hugging_face_model}_new_lr",
                     "model": "FILLMASK_GPT2",
                     "optimizer": "AdamW",
-                    "lr": 5e-5,
+                    "lr": 1e-4,
+                    "lr_milestones": "[100,120,140]",
+                    "lr_gamma": 0.1,
                     "loss": "AE_MSE_LOSS",
                     "weak_classifier_folder": os.path.join(
                         WEAK_CLASSIFIERS,
@@ -54,8 +55,8 @@ for zeroout_prob in [0.15]:
                     ),
                     "classifiers_indexes": "[0,1,2,3,4,5,6,7,8,9]",
                     "use_static_files": 0,
-                    "dataset": "imagenet21k",
-                    # "dataset": "cifar100",
+                    # "dataset": "imagenet21k",
+                    "dataset": "imagenet",
                     "random_seed": 0,
                 },
                 None,

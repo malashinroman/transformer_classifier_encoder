@@ -3,6 +3,7 @@ import sys
 
 sys.path.append(".")
 
+from local_config import WEAK_CLASSIFIERS
 from script_manager.func.script_boilerplate import do_everything
 from script_manager.func.script_parse_args import get_script_args
 
@@ -12,7 +13,7 @@ args = get_script_args()
 main_script = os.path.join("main.py")
 
 # weights and biases project name
-wandb_project_name = "SIMPLE_FC"
+wandb_project_name = "clebert"
 
 # keys
 appendix_keys = ["tag"]
@@ -25,7 +26,6 @@ test_parameters = {
 }
 
 default_parameters = {
-    # "zeroout_prob": 0.15,
     "fixed_zero_exp_num": 1,
     "batch_size": 64,
     "device": "cuda:0",
@@ -33,17 +33,26 @@ default_parameters = {
     "num_workers": 8,
 }
 
-# configs to be exectuted
 configs = []
-# for fixed_zero_exp_num in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
-for fixed_zero_exp_num in [1]:
+for zeroout_prob in [0.15]:
     configs.append(
         [
             {
-                "fixed_zero_exp_num": fixed_zero_exp_num,
-                "tag": f"fixed_zero_exp_num_{fixed_zero_exp_num}",
-                "model": "FILLMASK",
+                "zeroout_prob": zeroout_prob,
+                "fixed_zero_exp_num": 0,
+                "tag": f"cifar100_zeroout_prob_{zeroout_prob}_new_lr",
+                "model": "FILLMASK_RAND",
+                "optimizer": "AdamW",
+                "lr": 5e-5,
                 "loss": "AE_MSE_LOSS",
+                "weak_classifier_folder": os.path.join(
+                    WEAK_CLASSIFIERS,
+                    "cifar100_single_resent/2020-12-02T15-21-48_700332_weight_decay_0_0001_linear_search_False/tb",
+                ),
+                "classifiers_indexes": "[0,1,2,3,4,5,6,7,8,9]",
+                "use_static_files": 0,
+                "dataset": "imagenet",
+                "random_seed": 0,
             },
             None,
         ]

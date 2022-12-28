@@ -1,6 +1,5 @@
+import sys 
 import os
-import sys
-
 sys.path.append(".")
 
 from local_config import WEAK_CLASSIFIERS
@@ -29,14 +28,15 @@ default_parameters = {
     "fixed_zero_exp_num": 1,
     "batch_size": 64,
     "device": "cuda:0",
-    "epochs": 40,
+    "epochs": 200,
     "num_workers": 8,
 }
 
 configs = []
 # for zeroout_prob in [0.15, 0.8]:
 for zeroout_prob in [0.15]:
-    for hugging_face_model in ["gpt2", "gpt2-medium", "gpt2-large"]:
+    for hugging_face_model in ["gpt2-medium", "gpt2-large"]:
+    # for hugging_face_model in ["gpt2-xl"]:
         configs.append(
             [
                 {
@@ -47,6 +47,7 @@ for zeroout_prob in [0.15]:
                     "model": "FILLMASK_GPT2",
                     "optimizer": "AdamW",
                     "lr": 5e-5,
+                    "lr_milestones": "[80,100,120]",
                     "loss": "AE_MSE_LOSS",
                     "weak_classifier_folder": os.path.join(
                         WEAK_CLASSIFIERS,
@@ -54,8 +55,8 @@ for zeroout_prob in [0.15]:
                     ),
                     "classifiers_indexes": "[0,1,2,3,4,5,6,7,8,9]",
                     "use_static_files": 0,
-                    "dataset": "imagenet21k",
-                    # "dataset": "cifar100",
+                    # "dataset": "imagenet21k",
+                    "dataset": "imagenet",
                     "random_seed": 0,
                 },
                 None,
